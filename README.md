@@ -5,7 +5,7 @@ Why? Because ADS citation keys are not stable: they start out as something like 
 and after being accepted to a journal turn into something like `2020PhRvD.101f4007S`. This means you
 have to rewrite your latex, or you might even end up citing both entries!
 
-Usage:
+## Usage
 First latex/bibtex/latex your file, then run
 ```shell
 ./ads2inspire.py [--backup] auxfile.aux [texfile1.tex [texfile2.tex [...]]]
