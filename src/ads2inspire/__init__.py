@@ -1,5 +1,4 @@
 from pathlib import Path
-import argparse
 import re
 from time import sleep
 import urllib.request
@@ -210,7 +209,7 @@ def appended_needed_to_bib_file(bibpath, replacements, bib_dbs, backup=False):
     elif bibpath.with_suffix(".bib").exists():
         bibpath = bibpath.with_suffix(".bib")
     else:
-        print("Neither {1} nor {1}.bib exists".format(bibpath))
+        print(f"Neither {bibpath} nor {bibpath}.bib exists")
         raise FileExistsError
 
     with bibpath.open("r") as bibfile:
