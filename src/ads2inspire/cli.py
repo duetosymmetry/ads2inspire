@@ -42,7 +42,7 @@ def ads2inspire(auxpath, texpath, backup):
     elif Path(auxpath + ".aux").exists():
         aux, bib_path_strs, cite_keys = parse_aux(Path(auxpath + ".aux"))
     else:
-        print("Neither {1} nor {1}.aux exist".format(auxpath))
+        print(f"Neither {auxpath} nor {auxpath}.aux exist")
         quit()
 
     ads_keys = filter_ads_keys(cite_keys)
