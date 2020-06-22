@@ -1,0 +1,43 @@
+name: CI/CD
+
+on:
+  push:
+  pull_request:
+  # Run daily at 0:01 UTC
+  schedule:
+  - cron:  '1 0 * * *'
+
+jobs:
+  test:
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python-version: [3.6, 3.7, 3.8]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip setuptools wheel
+        python -m pip install -q --no-cache-dir -e .[test]
+        python -m pip list
+    - name: Check MANIFEST
+      if: matrix.python-version == 3.8 && matrix.os == 'ubuntu-latest'
+      run: |
+        check-manifest
+    # Put this here tempoarily
+    - name: Install pep517 and twine
+      run: |
+        python -m pip install pep517 --user
+        python -m pip install twine
+    - name: Build a binary wheel and a source tarball
+      run: |
+        python -m pep517.build --source --binary --out-dir dist/ .
+    - name: Verify the distribution
+      run: twine check dist/*
