@@ -1,5 +1,6 @@
 [![github](https://img.shields.io/badge/GitHub-ads2inspire-blue.svg)](https://github.com/duetosymmetry/ads2inspire)
 [![PyPI version](https://badge.fury.io/py/ads2inspire.svg)](https://badge.fury.io/py/ads2inspire)
+[![DOI](https://zenodo.org/badge/273416634.svg)](https://zenodo.org/badge/latestdoi/273416634)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/duetosymmetry/ads2inspire/blob/master/LICENSE)
 
 # ads2inspire
