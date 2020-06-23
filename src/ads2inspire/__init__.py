@@ -36,13 +36,15 @@ def parse_aux(aux_path):
 def load_bib_dbs(bib_path_strs):
     """TODO Documentation"""
 
+    parser = bibtexparser.bparser.BibTexParser(common_strings = True)
+
     bib_paths = []
     bib_dbs = []
     for path_str in bib_path_strs:
         if Path(path_str).exists():
             try:
                 with open(Path(path_str), "r") as bib_file:
-                    bib_db = bibtexparser.load(bib_file)
+                    bib_db = bibtexparser.load(bib_file, parser)
                     bib_paths.append(path_str)
                     bib_dbs.append(bib_db)
             except Exception as e:
@@ -51,7 +53,7 @@ def load_bib_dbs(bib_path_strs):
         elif Path(path_str + ".bib").exists():
             try:
                 with open(Path(path_str + ".bib"), "r") as bib_file:
-                    bib_db = bibtexparser.load(bib_file)
+                    bib_db = bibtexparser.load(bib_file, parser)
                     bib_paths.append(path_str + ".bib")
                     bib_dbs.append(bib_db)
             except Exception as e:
