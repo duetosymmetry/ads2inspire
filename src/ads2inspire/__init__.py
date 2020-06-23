@@ -73,7 +73,8 @@ def load_bib_dbs(bib_path_strs):
       bibtexparser for details.
     """
 
-    parser = bibtexparser.bparser.BibTexParser(common_strings = True)
+    parser = bibtexparser.bparser.BibTexParser(common_strings = True,
+                                               ignore_nonstandard_types = False)
 
     bib_paths = []
     bib_dbs = []
