@@ -1,3 +1,7 @@
+[![github](https://img.shields.io/badge/GitHub-ads2inspire-blue.svg)](https://github.com/duetosymmetry/ads2inspire)
+[![PyPI version](https://badge.fury.io/py/ads2inspire.svg)](https://badge.fury.io/py/ads2inspire)
+[![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/duetosymmetry/ads2inspire/blob/master/LICENSE)
+
 # ads2inspire
 Replace ADS citations with the appropriate INSPIRE ones in latex and bibtex
 
@@ -6,6 +10,14 @@ and after being accepted to a journal turn into something like `2020PhRvD.101f40
 have to rewrite your latex, or you might even end up citing both entries!
 
 ## Installation
+
+### From PyPI
+
+In your Python environment run
+
+```
+python -m pip install ads2inspire
+```
 
 ### From this repository
 
