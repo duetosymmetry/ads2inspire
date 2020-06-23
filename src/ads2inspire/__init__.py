@@ -48,7 +48,7 @@ def load_bib_dbs(bib_path_strs):
                     bib_paths.append(path_str)
                     bib_dbs.append(bib_db)
             except Exception as e:
-                print("{} exists but parsing failed, error:".format(path_str))
+                print(f"{path_str} exists but parsing failed, error:")
                 print(repr(e))
         elif Path(path_str + ".bib").exists():
             try:
@@ -57,10 +57,10 @@ def load_bib_dbs(bib_path_strs):
                     bib_paths.append(path_str + ".bib")
                     bib_dbs.append(bib_db)
             except Exception as e:
-                print("{} exists but parsing failed, error".format(path_str))
+                print(f"{path_str} exists but parsing failed, error")
                 print(repr(e))
         else:
-            print("Neither {} nor {}.bib exist".format(path_str, path_str))
+            print(f"Neither {path_str} nor {path_str}.bib exist")
             pass
 
     return bib_paths, bib_dbs
@@ -92,7 +92,7 @@ def filter_matchable_keys(cite_keys, bib_dbs, desired_keys=["eprint", "doi"]):
 
 def maybe_get_insp_bib(url, max_retries=3, sleep_ms=500):
 
-    print("requesting {}".format(url))
+    print(f"requesting {url}")
     n_retries = 0
     while n_retries < max_retries:
         try:
@@ -101,8 +101,8 @@ def maybe_get_insp_bib(url, max_retries=3, sleep_ms=500):
             print(e)
             if e.code == 429:
                 retry_time = req.getheaders()["retry-in"]
-                print('got 429 with "retry-in"={}'.format(retry_time))
-                print("going to sleep for {}ms".format(sleep_ms))
+                print(f'got 429 with "retry-in"={retry_time}')
+                print(f"going to sleep for {sleep_ms}ms")
                 sleep(sleep_ms / 1000.0)
                 n_retries = n_retries + 1
                 continue
@@ -114,7 +114,7 @@ def maybe_get_insp_bib(url, max_retries=3, sleep_ms=500):
         else:  # Success
             return req.read()
     # maxed out on retries
-    print("too many ({}) retries".format(n_retries))
+    print(f"too many ({n_retries}) retries")
     return None
 
 

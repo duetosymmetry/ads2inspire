@@ -51,8 +51,8 @@ def ads2inspire(auxpath, texpath, backup):
     replacements = get_insp_replacements_query(key_mapping)
 
     for path in texpath:
-        print("rewriting {}, backup={}".format(path, backup))
+        print(f"rewriting {path}, backup={backup}")
         rewrite_tex_file(path, replacements, backup=backup)
 
-    print("appending to {}".format(bib_path_strs[0]))
     appended_needed_to_bib_file(bib_path_strs[0], replacements, bib_dbs, backup=backup)
+    print(f"appending to {bib_path_strs[0]}")
