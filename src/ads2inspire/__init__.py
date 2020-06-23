@@ -6,7 +6,27 @@ import bibtexparser
 
 
 def parse_aux(aux_path):
-    """TODO Documentation"""
+    """Read a .aux file, parse for paths to bib files, referenced keys
+
+    Parameters
+    ----------
+    aux_path: `PathLike`
+      Path to .aux file
+
+    Returns
+    -------
+    aux: string
+      Contents of the aux file
+
+    bib_path_strs: array of string
+      An array of strings which are the paths of .bib files which were
+      referenced in the aux file
+
+    cite_keys: array of string
+      An array of keys which were referenced in the aux file
+    """
+
+    aux_path = Path(aux_path)
 
     with aux_path.open("r") as aux_file:
         aux = aux_file.read()
@@ -34,7 +54,24 @@ def parse_aux(aux_path):
 
 
 def load_bib_dbs(bib_path_strs):
-    """TODO Documentation"""
+    """Read a collection of .bib files using `bibtexparser`.
+
+    Parameters
+    ----------
+    bib_path_strs: array of string
+      An array of strings which are the paths of .bib files to attempt
+      to open and parse
+
+    Returns
+    -------
+    bib_paths: array of `PathLike`
+      The Path objects for .bib files that were found and successfully
+      parsed.
+
+    bib_dbs: array of `bibtexparser.bibdatabase.BibDatabase`
+      The corresponding BibDatabase objects, see documentation for
+      bibtexparser for details.
+    """
 
     parser = bibtexparser.bparser.BibTexParser(common_strings = True)
 
@@ -67,14 +104,54 @@ def load_bib_dbs(bib_path_strs):
 
 
 def filter_ads_keys(cite_keys):
-    """TODO Documentation"""
+    """Select keys matching the pattern of ADS bibtex keys.
+
+    The current pattern to match is: `"\d\d\d\d..............."`
+
+    Parameters
+    ----------
+    cite_keys: array of string
+      An array of bibtex keys
+
+    Returns
+    -------
+    ads_keys: array of string
+      The matching keys from cite_keys
+    """
 
     ads_pat = re.compile("\d\d\d\d...............")
     return [key for key in cite_keys if ads_pat.match(key) is not None]
 
 
-def filter_matchable_keys(cite_keys, bib_dbs, desired_keys=["eprint", "doi"]):
-    """TODO Documentation"""
+def filter_matchable_fields(cite_keys, bib_dbs, desired_fields=["eprint", "doi"]):
+    """Select bibtex entries which have certain desired fields.
+
+    To look up an entry in a different database, we need a
+    well-known identifier like a DOI or arXiv identifier.  This
+    function will select those entries which have enough info (by
+    having desired fields) that we can search for them in another DB.
+    The return is a mapping from bibkeys to their bib entries, where
+    the entries have been stripped down to only the desired well-known
+    identifiers.
+
+    Parameters
+    ----------
+    cite_keys: array of string
+      Bibtex keys to filter
+
+    bib_dbs: array of `bibtexparser.bibdatabase.BibDatabase`
+
+    desired_fields: array of string, optional [default: `['eprint', 'doi']`]
+      Fields whose presence lets us search in another DB.
+
+    Returns
+    -------
+    key_mapping: dict
+      For a key `ads_key`, the value is a dict which is a filtered bib
+      entry.  This resulting dict has keys coming from
+      `desired_fields`.  For example, you can access
+      `key_mapping[ads_key]['doi']`.
+    """
 
     key_mapping = {}
     for ads_key in cite_keys:
@@ -82,7 +159,7 @@ def filter_matchable_keys(cite_keys, bib_dbs, desired_keys=["eprint", "doi"]):
             if ads_key in bib_db.entries_dict:
                 entry = bib_db.entries_dict[ads_key]
                 filtered_entry = {
-                    key: val for key, val in entry.items() if key in desired_keys
+                    field: val for field, val in entry.items() if field in desired_fields
                 }
                 if len(filtered_entry) > 0:
                     key_mapping[ads_key] = filtered_entry
@@ -91,6 +168,23 @@ def filter_matchable_keys(cite_keys, bib_dbs, desired_keys=["eprint", "doi"]):
 
 
 def maybe_get_insp_bib(url, max_retries=3, sleep_ms=500):
+    """Try to query an INSPIRE URL, with retries, and sleeping
+
+    Parameters
+    ----------
+    url: string
+
+    max_retries: int, optional [default: 3]
+
+    sleep_ms: numeric, optional [default: 500]
+      Length of sleep (in milliseconds) between HTTP 429 codes
+
+    Returns
+    -------
+    response: bytes or None
+      The positive response from INSPIRE; None if an error occurs, or
+      if we failed the max number of times.
+    """
 
     print(f"requesting {url}")
     n_retries = 0
@@ -118,11 +212,27 @@ def maybe_get_insp_bib(url, max_retries=3, sleep_ms=500):
     return None
 
 
-def maybe_get_insp_bib_methods(ads_key, other_keys, sleep_ms=500):
-    """TODO document this.
-    ads_key is a string.
-    other_keys is a dict where keys are in
-    `desired_keys` and vals are the new paper keys"""
+def maybe_get_insp_bib_methods(possible_keys, max_retries_per_key=3, sleep_ms=500):
+    """Try to query INSPIRE using a dictionary of possible keys.
+
+    Currently supported keys are 'doi' and 'eprint'.
+
+    Parameters
+    ----------
+    possible_keys: dict
+      Keys are one of 'doi', 'eprint'.
+
+    max_retries_per_key: int, optional [default: 3]
+
+    sleep_ms: numeric, optional [default: 500]
+      Length of sleep (in milliseconds) between HTTP 429 codes
+
+    Returns
+    -------
+     response: bytes or None
+      The positive response from INSPIRE; None if an error occurs, or
+      if we failed the max number of times.
+    """
 
     insp_api_base = "https://inspirehep.net/api/"
     fetchers = {
@@ -130,19 +240,33 @@ def maybe_get_insp_bib_methods(ads_key, other_keys, sleep_ms=500):
         "eprint": (lambda eprint: insp_api_base + "arxiv/" + eprint + "?format=bibtex"),
     }
 
-    possible_urls = [fetchers[method](val) for method, val in other_keys.items()]
+    possible_urls = [fetchers[method](val) for method, val in possible_keys.items()]
 
     for url in possible_urls:
-        bibdata = maybe_get_insp_bib(url, sleep_ms=sleep_ms)
+        bibdata = maybe_get_insp_bib(url, max_retries=max_retries_per_key, sleep_ms=sleep_ms)
         if bibdata is not None:
             return bibdata
         else:
             sleep(sleep_ms / 1000.0)
-    print("No bib entries found for ads_key={}".format(ads_key))
+
+    # If we got here, failed to find an INSPIRE entry
     return None
 
 
-def insp_key_from_bib_str(bibdata):
+def extract_key_from_bib_str(bibdata):
+    """Extract the bib key from a single bib entry.
+
+    Parameters
+    ----------
+    bibdata: string
+      A string containing one bibliography entry, e.g. a string that
+      starts like "@article{Stein:2019buj,\n".
+
+    Returns
+    -------
+    key: string
+    """
+
     match = re.match("@(.*?)\\{(.*?),", bibdata)
     if match is not None:
         return match.group(2)
@@ -150,16 +274,40 @@ def insp_key_from_bib_str(bibdata):
         return None
 
 
-def get_insp_replacements_query(key_mapping):
-    """TODO Documentation"""
+def get_insp_replacements_query(key_mapping, max_retries_per_key=3, sleep_ms=500):
+    """Query INSPIRE for replacement keys.
+
+    Parameters
+    ----------
+    key_mapping: dict
+      Same format as that returned by `filter_matchable_fields`:
+      For a key `ads_key`, the value is a dict which is a filtered bib
+      entry.  This resulting dict has keys coming from
+      `desired_fields`.  For example, you can access
+      `key_mapping[ads_key]['doi']`.
+
+    max_retries_per_key: int, optional [default: 3]
+
+    sleep_ms: numeric, optional [default: 500]
+      Length of sleep (in milliseconds) between HTTP 429 codes
+
+    Returns
+    -------
+    replacements: array of dict
+      Each dict has keys "ads_key", "insp_key", and "bib_str".
+    """
 
     replacements = []
 
-    for ads_key, other_keys in key_mapping.items():
-        bibdata = maybe_get_insp_bib_methods(ads_key, other_keys, sleep_ms=1)
-        if bibdata is not None:
+    for ads_key, possible_keys in key_mapping.items():
+        bibdata = maybe_get_insp_bib_methods(possible_keys,
+                                             max_retries_per_key=max_retries_per_key,
+                                             sleep_ms=sleep_ms)
+        if bibdata is None:
+            print(f"No bib entries found for ads_key={ads_key}")
+        else:
             bib_str = bibdata.decode("utf-8")
-            insp_key = insp_key_from_bib_str(bib_str)
+            insp_key = extract_key_from_bib_str(bib_str)
             rep_data = {"ads_key": ads_key, "insp_key": insp_key, "bib_str": bib_str}
             replacements.append(rep_data)
 
@@ -167,7 +315,20 @@ def get_insp_replacements_query(key_mapping):
 
 
 def find_already_present_insp_keys(replacements, bib_dbs):
-    """TODO Documentation"""
+    """Filter replacements to those whose INSPIRE key appear in bibs.
+
+    Parameters
+    ----------
+    replacements: array of dict
+      Each dict has keys "ads_key", "insp_key", and "bib_str".
+
+    bib_dbs: array of `bibtexparser.bibdatabase.BibDatabase`
+
+    Returns
+    -------
+    already_present_insp_keys: set of string
+      Strings are INSPIRE keys appearing in `bib_dbs`
+    """
 
     already_present_insp_keys = []
     for rep in replacements:
@@ -179,7 +340,19 @@ def find_already_present_insp_keys(replacements, bib_dbs):
 
 
 def rewrite_tex_file(texpath, replacements, backup=False):
-    """TODO Documentation"""
+    """Rewrite a tex file, replacing ADS keys with INSPIRE keys.
+
+    Parameters
+    ----------
+    texpath: PathLike
+      Path to tex file to rewrite
+
+    replacements: array of dict
+      Each dict has keys "ads_key", "insp_key", and "bib_str".
+
+    backup: bool, optional [default: False]
+      If True, first back up the tex file (using suffix ".bak.tex")
+    """
 
     texpath = Path(texpath)
 
@@ -197,14 +370,36 @@ def rewrite_tex_file(texpath, replacements, backup=False):
         texfile.write(tex)
 
 
-def appended_needed_to_bib_file(bibpath, replacements, bib_dbs, backup=False):
-    """TODO Documentation"""
+def append_needed_to_bib_file(bibpath, replacements, bib_dbs, backup=False):
+    """Append needed INSPIRE bib entried to bib file.
+
+    Filters `replacements` down, using `bib_dbs`, to just those which
+    are missing; then appends their bib entries to the bib file.
+
+    Parameters
+    ----------
+    bibpath: PathLike
+      Path to bib file to append
+
+    replacements: array of dict
+      Dicts mapping ADS keys to INSPIRE keys, with bib entries.
+      Each dict has keys "ads_key", "insp_key", and "bib_str".
+
+    bib_dbs: array of `bibtexparser.bibdatabase.BibDatabase`
+
+    backup: bool, optional [default: False]
+      If True, first back up the bib file (using suffix ".bak.bib")
+
+    """
 
     bibpath = Path(bibpath)
 
     all_fetched_insp_keys = {rep["insp_key"] for rep in replacements}
     already_present_insp_keys = find_already_present_insp_keys(replacements, bib_dbs)
     need_to_write_insp_keys = all_fetched_insp_keys - already_present_insp_keys
+
+    if len(need_to_write_insp_keys) == 0:
+        return
 
     if bibpath.exists():
         pass

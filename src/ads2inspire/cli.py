@@ -7,10 +7,10 @@ from . import (
     parse_aux,
     filter_ads_keys,
     load_bib_dbs,
-    filter_matchable_keys,
+    filter_matchable_fields,
     get_insp_replacements_query,
     rewrite_tex_file,
-    appended_needed_to_bib_file,
+    append_needed_to_bib_file,
 )
 
 logging.basicConfig()
@@ -37,22 +37,26 @@ def ads2inspire(auxpath, texpath, backup):
     TEXPATH is the Path to the LaTeX file(s) to rewrite
     """
 
-    if Path(auxpath).exists():
-        aux, bib_path_strs, cite_keys = parse_aux(Path(auxpath))
-    elif Path(auxpath + ".aux").exists():
-        aux, bib_path_strs, cite_keys = parse_aux(Path(auxpath + ".aux"))
+    auxpath = Path(auxpath)
+
+    if auxpath.exists():
+        pass
+    elif auxpath.with_suffix(".aux").exists():
+        auxpath = auxpath.with_suffix(".aux")
     else:
         print(f"Neither {auxpath} nor {auxpath}.aux exist")
         quit()
 
+    aux, bib_path_strs, cite_keys = parse_aux(auxpath)
+
     ads_keys = filter_ads_keys(cite_keys)
     bib_path_strs, bib_dbs = load_bib_dbs(bib_path_strs)
-    key_mapping = filter_matchable_keys(ads_keys, bib_dbs)
+    key_mapping = filter_matchable_fields(ads_keys, bib_dbs)
     replacements = get_insp_replacements_query(key_mapping)
 
     for path in texpath:
         print(f"rewriting {path}, backup={backup}")
         rewrite_tex_file(path, replacements, backup=backup)
 
-    appended_needed_to_bib_file(bib_path_strs[0], replacements, bib_dbs, backup=backup)
     print(f"appending to {bib_path_strs[0]}")
+    append_needed_to_bib_file(bib_path_strs[0], replacements, bib_dbs, backup=backup)
