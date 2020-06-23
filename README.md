@@ -41,6 +41,6 @@ Note that I have done very little testing! Want to pitch in and help make this c
 Please fork and send me PRs!
 
 TODO:
-- More documentation
+- More testing
 - Distribution of package for pip/conda
 - more?
