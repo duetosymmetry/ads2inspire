@@ -1,6 +1,7 @@
 [![github](https://img.shields.io/badge/GitHub-ads2inspire-blue.svg)](https://github.com/duetosymmetry/ads2inspire)
 [![PyPI version](https://badge.fury.io/py/ads2inspire.svg)](https://badge.fury.io/py/ads2inspire)
 [![DOI](https://zenodo.org/badge/273416634.svg)](https://zenodo.org/badge/latestdoi/273416634)
+[![Conda Version](https://img.shields.io/conda/vn/conda-forge/ads2inspire.svg)](https://anaconda.org/conda-forge/ads2inspire)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/duetosymmetry/ads2inspire/blob/master/LICENSE)
 
 # ads2inspire
@@ -18,6 +19,14 @@ In your Python environment run
 
 ```
 python -m pip install ads2inspire
+```
+
+### From conda-forge
+
+In your conda environment run
+
+```
+conda install -c conda-forge ads2inspire
 ```
 
 ### From this repository
