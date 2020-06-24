@@ -52,7 +52,7 @@ First latex/bibtex/latex your file, then run
 ads2inspire [--backup] auxfile.aux [texfile1.tex [texfile2.tex [...]]]
 ```
 
-If your main tex file is named `wondeful.tex`, then your auxfile will be named `wonderful.aux`.
+If your main tex file is named `wonderful.tex`, then your auxfile will be named `wonderful.aux`.
 `ads2inspire` will read the aux file, query INSPIRE, then rewrite all the texfiles named on the
 command line, and append to the first bibtex file named in auxfile.  The option `--backup` will
 make the program write backups of the tex and bib files before rewriting them.
@@ -64,5 +64,4 @@ Please fork and send me PRs!
 
 TODO:
 - More testing
-- Distribution of package for pip/conda
 - more?
