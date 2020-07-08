@@ -129,6 +129,26 @@ def filter_ads_keys(cite_keys):
     return [key for key in cite_keys if ads_pat.match(key) is not None]
 
 
+def filter_not_insp_keys(cite_keys):
+    """Select keys that do not match the pattern of INSPIRE bibtex keys.
+
+    The current pattern to /not/ match is: `".*?:\d\d\d\d[a-z]{2,3}"`
+
+    Parameters
+    ----------
+    cite_keys: array of string
+      An array of bibtex keys
+
+    Returns
+    -------
+    not_insp_keys: array of string
+      The non-matching keys from cite_keys
+    """
+
+    insp_pat = re.compile(".*?:\d\d\d\d[a-z]{2,3}")
+    return [key for key in cite_keys if insp_pat.match(key) is None]
+
+
 def filter_matchable_fields(cite_keys, bib_dbs, desired_fields=["eprint", "doi"]):
     """Select bibtex entries which have certain desired fields.
 
