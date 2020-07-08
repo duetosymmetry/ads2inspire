@@ -45,6 +45,9 @@ def ads2inspire(auxpath, texpath, backup, filter_type):
     AUXPATH is the Path to .aux file (if you compiled wonderful.tex this should be wonderful.aux)
 
     TEXPATH is the Path to the LaTeX file(s) to rewrite
+
+    You should first run latex/bibtex/latex/latex on your work before running this script.
+    The first .bib file named within AUXPATH will receive the new entries.
     """
 
     auxpath = Path(auxpath)
