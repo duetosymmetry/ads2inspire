@@ -37,6 +37,11 @@ def parse_aux(aux_path):
     except:
         bib_path_strs = []
 
+    # Filter out revtex's <job>Notes.bib files
+    # This is kind of a hack... is there a better way?
+    revtex_Notes_name = aux_path.stem + "Notes"
+    bib_path_strs = [ path for path in bib_path_strs if path != revtex_Notes_name ]
+
     # And which citation keys were used
     cite_pat = re.compile("\\\\bibcite\\{(.*?)\\}")
 
