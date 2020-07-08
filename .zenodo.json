@@ -1,0 +1,32 @@
+{
+    "description": "Replace ADS citations with the appropriate INSPIRE ones in latex and bibtex",
+    "license": "MIT",
+    "title": "duetosymmetry/ads2inspire: v0.2.0",
+    "version": "v0.2.0",
+    "upload_type": "software",
+    "creators": [
+        {
+            "affiliation": "University of Mississippi",
+            "name": "Leo C. Stein",
+            "orcid": "0000-0001-7559-9597"
+        },
+        {
+            "affiliation": "University of Illinois at Urbana-Champaign",
+            "name": "Matthew Feickert",
+            "orcid": "0000-0003-4124-7862"
+        }
+    ],
+    "access_right": "open",
+    "keywords": [
+      "latex",
+      "bibtex",
+      "bibliography"
+    ],
+    "related_identifiers": [
+        {
+            "scheme": "url",
+            "identifier": "https://github.com/duetosymmetry/ads2inspire/tree/v0.2.0",
+            "relation": "isSupplementTo"
+        }
+    ]
+}

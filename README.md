@@ -69,3 +69,17 @@ TODO:
 - More testing
 - More filter types
 - more?
+
+## Citation
+
+The preferred BibTeX entry for citation of `ads2inspire` is
+
+```
+@software{ads2inspire,
+  author = "{Stein, Leo C. and Feickert, Matthew}",
+  title = "{ads2inspire: v0.2.0}",
+  version = {v0.2.0},
+  doi = {10.5281/zenodo.3903987},
+  url = {https://github.com/duetosymmetry/ads2inspire},
+}
+```
