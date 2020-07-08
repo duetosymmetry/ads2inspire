@@ -6,6 +6,7 @@ from pathlib import Path
 from . import (
     parse_aux,
     filter_ads_keys,
+    filter_not_insp_keys,
     load_bib_dbs,
     filter_matchable_fields,
     get_insp_replacements_query,
@@ -16,6 +17,8 @@ from . import (
 logging.basicConfig()
 log = logging.getLogger(__name__)
 
+
+filter_map = {"ads": filter_ads_keys, "all": filter_not_insp_keys}
 
 @click.command()
 @click.argument(
@@ -28,7 +31,14 @@ log = logging.getLogger(__name__)
     help="If passed, .tex files will be backed up with extension .bak.tex before being rewritten, and the .bib file will be backed up with .bak.bib before being written.",
     is_flag=True,
 )
-def ads2inspire(auxpath, texpath, backup):
+@click.option(
+    "--filter-type",
+    "-f",
+    type=click.Choice(list(filter_map.keys()), case_sensitive=False),
+    default="ads",
+    help="Which keys to filter for converting into INSPIRE"
+)
+def ads2inspire(auxpath, texpath, backup, filter_type):
     """
     Replace ADS citations with the appropriate INSPIRE ones in latex and bibtex
 
@@ -49,7 +59,9 @@ def ads2inspire(auxpath, texpath, backup):
 
     aux, bib_path_strs, cite_keys = parse_aux(auxpath)
 
-    ads_keys = filter_ads_keys(cite_keys)
+    filter_func = filter_map[filter_type.lower()]
+
+    ads_keys = filter_func(cite_keys)
     bib_path_strs, bib_dbs = load_bib_dbs(bib_path_strs)
     key_mapping = filter_matchable_fields(ads_keys, bib_dbs)
     replacements = get_insp_replacements_query(key_mapping)
