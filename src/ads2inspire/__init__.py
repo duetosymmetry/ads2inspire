@@ -43,19 +43,20 @@ def parse_aux(aux_path):
     bib_path_strs = [ path for path in bib_path_strs if path != revtex_Notes_name ]
 
     # And which citation keys were used
-    cite_pat = re.compile("\\\\bibcite\\{(.*?)\\}")
+    cite_pat = re.compile("\\\\citation\\{(.*?)\\}")
 
     pos = 0
     cite_keys = []
     while True:
         match = cite_pat.search(aux, pos)
         if match is not None:
-            cite_keys.append(match.group(1))
+            more_keys = match.group(1).split(',')
+            cite_keys.extend(more_keys)
             pos = match.span()[1]
         else:
             break
 
-    return aux, bib_path_strs, cite_keys
+    return aux, bib_path_strs, list(set(cite_keys))
 
 
 def load_bib_dbs(bib_path_strs):
