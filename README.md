@@ -49,7 +49,7 @@ python -m pip install "git+https://github.com/duetosymmetry/ads2inspire.git#egg=
 First latex/bibtex/latex your file, then run
 
 ```shell
-ads2inspire [--backup] [--filter-type [ads|all]] auxfile.aux [texfile1.tex [texfile2.tex [...]]]
+ads2inspire [--backup] [--filter-type [ads|all]] [--fill-missing] auxfile.aux [texfile1.tex [texfile2.tex [...]]]
 ```
 
 If your main tex file is named `wonderful.tex`, then your auxfile will be named `wonderful.aux`.
@@ -59,6 +59,9 @@ make the program write backups of the tex and bib files before rewriting them.  
 `--filter-type` controls which keys to search for on INSPIRE: the default `"ads"` will only
 search for keys that look like ADS keys, while `"all"` will try all keys (aside from those that
 look like INSPIRE keys).
+The `--fill-missing` flag will query for INSPIRE-like keys that were
+referenced in the LaTeX source, but missing from the .bib file, and
+fill them into the .bib file if found.
 
 ## Contributing
 
