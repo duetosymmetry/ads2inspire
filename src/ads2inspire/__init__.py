@@ -149,6 +149,52 @@ def filter_not_insp_keys(cite_keys):
     insp_pat = re.compile(".*?:\d\d\d\d[a-z]{2,3}")
     return [key for key in cite_keys if insp_pat.match(key) is None]
 
+def missing_insp_keys(cite_keys, bib_dbs):
+    """Select cite_keys that are INSPIRE keys but missing from bib_dbs.
+
+    Parameters
+    ----------
+    cite_keys: array of string
+      Bibtex keys to filter
+
+    bib_dbs: array of `bibtexparser.bibdatabase.BibDatabase`
+
+    Returns
+    -------
+    missing_keys: array of string
+      The keys from cite_keys which are INSPIRE keys but were not found in bib_dbs.
+    """
+
+    not_insp_keys = filter_not_insp_keys(cite_keys)
+    insp_keys = set(cite_keys) - set(not_insp_keys)
+
+    found_keys = set()
+
+    for insp_key in insp_keys:
+        for bib_db in bib_dbs:
+            if insp_key in bib_db.entries_dict:
+                found_keys.add(insp_key)
+
+    missing_keys = insp_keys - found_keys
+
+    return list(missing_keys)
+
+def missing_key_dummy_mapping(missing_keys):
+    """Create a dummy key_mapping for INSPIRE texkeys
+
+    Parameters
+    ----------
+    missing_keys: array of string
+      The keys from cite_keys which are INSPIRE keys but were not found in bib_dbs.
+
+    Returns
+    -------
+    key_mapping: dict
+      Each key in missing_keys will appear in key_mapping as
+      key_mapping[key]['texkey'] = key
+    """
+
+    return { key: {'texkey': key} for key in missing_keys }
 
 def filter_matchable_fields(cite_keys, bib_dbs, desired_fields=["eprint", "doi"]):
     """Select bibtex entries which have certain desired fields.
@@ -242,12 +288,12 @@ def maybe_get_insp_bib(url, max_retries=3, sleep_ms=500):
 def maybe_get_insp_bib_methods(possible_keys, max_retries_per_key=3, sleep_ms=500):
     """Try to query INSPIRE using a dictionary of possible keys.
 
-    Currently supported keys are 'doi' and 'eprint'.
+    Currently supported keys are 'doi', 'eprint', and 'texkey'.
 
     Parameters
     ----------
     possible_keys: dict
-      Keys are one of 'doi', 'eprint'.
+      Keys are one of 'doi', 'eprint', 'texkey'.
 
     max_retries_per_key: int, optional [default: 3]
 
@@ -265,6 +311,7 @@ def maybe_get_insp_bib_methods(possible_keys, max_retries_per_key=3, sleep_ms=50
     fetchers = {
         "doi": (lambda doi: insp_api_base + "doi/" + doi + "?format=bibtex"),
         "eprint": (lambda eprint: insp_api_base + "arxiv/" + eprint + "?format=bibtex"),
+        "texkey": (lambda key: insp_api_base + "literature/?format=bibtex&q=" + key),
     }
 
     possible_urls = [fetchers[method](val) for method, val in possible_keys.items()]
