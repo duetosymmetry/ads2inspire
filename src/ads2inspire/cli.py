@@ -12,6 +12,8 @@ from . import (
     get_insp_replacements_query,
     rewrite_tex_file,
     append_needed_to_bib_file,
+    missing_insp_keys,
+    missing_key_dummy_mapping,
 )
 
 logging.basicConfig()
@@ -38,7 +40,13 @@ filter_map = {"ads": filter_ads_keys, "all": filter_not_insp_keys}
     default="ads",
     help="Which keys to filter for converting into INSPIRE"
 )
-def ads2inspire(auxpath, texpath, backup, filter_type):
+@click.option(
+    "--fill-missing",
+    "-m",
+    help="If passed, INSPIRE-like citation keys that were referenced in the LaTeX source but missing from the .bib file will be searched for and inserted if found.",
+    is_flag=True,
+)
+def ads2inspire(auxpath, texpath, backup, filter_type, fill_missing):
     """
     Replace ADS citations with the appropriate INSPIRE ones in latex and bibtex
 
@@ -68,6 +76,12 @@ def ads2inspire(auxpath, texpath, backup, filter_type):
     bib_path_strs, bib_dbs = load_bib_dbs(bib_path_strs)
     key_mapping = filter_matchable_fields(ads_keys, bib_dbs)
     replacements = get_insp_replacements_query(key_mapping)
+
+    if fill_missing:
+        missing = missing_insp_keys(cite_keys, bib_dbs)
+        missing_key_map = missing_key_dummy_mapping(missing)
+        additions = get_insp_replacements_query(missing_key_map)
+        replacements = replacements + additions
 
     for path in texpath:
         print(f"rewriting {path}, backup={backup}")
