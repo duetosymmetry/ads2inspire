@@ -311,7 +311,7 @@ def maybe_get_insp_bib_methods(possible_keys, max_retries_per_key=3, sleep_ms=50
     fetchers = {
         "doi": (lambda doi: insp_api_base + "doi/" + doi + "?format=bibtex"),
         "eprint": (lambda eprint: insp_api_base + "arxiv/" + eprint + "?format=bibtex"),
-        "texkey": (lambda key: insp_api_base + "literature/?format=bibtex&q=" + key),
+        "texkey": (lambda key: insp_api_base + "literature/?format=bibtex&q=texkey:" + key),
     }
 
     possible_urls = [fetchers[method](val) for method, val in possible_keys.items()]
