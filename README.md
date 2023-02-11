@@ -42,7 +42,7 @@ python -m pip install .
 In your Python environment run
 
 ```
-python -m pip install "git+https://github.com/duetosymmetry/ads2inspire.git#egg=ads2inspire"
+python -m pip install "ads2inspire@git+https://github.com/duetosymmetry/ads2inspire.git"
 ```
 
 ## Usage
